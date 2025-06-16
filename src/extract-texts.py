@@ -66,6 +66,6 @@ if __name__ == "__main__":
             messages.appendleft(message)
     
     # Take the formatted messages and append them to the output file.
-    with open(args.out_file, "a", encoding="utf-8") as out_data:
+    with open(args.out_file, "w", encoding="utf-8") as out_data:
         for message in messages:
             out_data.write(message)
