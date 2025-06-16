@@ -62,7 +62,6 @@ if __name__ == "__main__":
         raw_json = raw_json["listSms"]
         
         for raw_message in raw_json:
-            print(args.senders)
             message = parse_message(raw_message, args.senders)
             messages.appendleft(message)
     
