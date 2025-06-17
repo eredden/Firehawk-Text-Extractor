@@ -6,10 +6,10 @@ from collections import deque
 from datetime import datetime
 import json
 
-def parse_message(message: str, senders: list[str]) -> str:
+def parse_message(message: dict, senders: list[str]) -> str:
     # The indexes used for senders by the JSON file begin incrementing 
     # from 1 rather than 0. We correct for this here by subtracting 1.
-    sender = message["type"] - 1
+    sender_index = message["type"] - 1
     body = message["body"]
 
     # Timestamps are UNIX epoch times in milliseconds. We divide by 
@@ -19,7 +19,14 @@ def parse_message(message: str, senders: list[str]) -> str:
         message["time"] / 1000
     )
 
-    return f"{senders[sender]} ({date}): {body}\n"
+    # In case too few senders are provided by the user when running
+    # this program, we can default to "Unknown Sender X."
+    if 0 <= sender_index < len(senders):
+        sender_name = senders[sender_index]
+    else:
+        sender_name = f"UNKNOWN SENDER {sender_index + 1}"
+
+    return f"{senders[sender_name]} ({date}): {body}\n"
 
 if __name__ == "__main__":
     parser = ArgumentParser(
@@ -82,3 +89,6 @@ if __name__ == "__main__":
     except KeyError:
         print("Error: The key 'listSms' was not found in the JSON file.")
         exit(1)
+    
+    print(f"Successfully extracted {len(messages)} messages to \
+          '{args.out_file}'")
