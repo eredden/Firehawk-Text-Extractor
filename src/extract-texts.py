@@ -19,7 +19,7 @@ def parse_message(message: str, senders: list[str]) -> str:
         message["time"] / 1000
     )
 
-    return f"{args.senders[sender]} ({date}): {body}\n"
+    return f"{senders[sender]} ({date}): {body}\n"
 
 if __name__ == "__main__":
     parser = ArgumentParser(
@@ -56,16 +56,29 @@ if __name__ == "__main__":
     # Parse each individual message, add to the deque.
     messages = deque([])
     
-    with open(args.in_file, "r", encoding="utf-8") as in_data:
-        raw_data = in_data.read()
-        raw_json = json.loads(raw_data)
-        raw_json = raw_json["listSms"]
+    try:
+        with open(args.in_file, "r", encoding="utf-8") as in_data:
+            raw_data = in_data.read()
+            raw_json = json.loads(raw_data)
+            raw_json = raw_json["listSms"]
+            
+            for raw_message in raw_json:
+                message = parse_message(raw_message, args.senders)
+                messages.appendleft(message)
         
-        for raw_message in raw_json:
-            message = parse_message(raw_message, args.senders)
-            messages.appendleft(message)
-    
-    # Take the formatted messages and append them to the output file.
-    with open(args.out_file, "w", encoding="utf-8") as out_data:
-        for message in messages:
-            out_data.write(message)
+        # Take the formatted messages and append them to the output file.
+        with open(args.out_file, "w", encoding="utf-8") as out_data:
+            for message in messages:
+                out_data.write(message)
+
+    except FileNotFoundError:
+        print(f"Error: Input file not found at '{args.in_file}'")
+        exit(1)
+
+    except json.JSONDecodeError:
+        print(f"Error: Could not decode JSON from '{args.in_file}'.")
+        exit(1)
+
+    except KeyError:
+        print("Error: The key 'listSms' was not found in the JSON file.")
+        exit(1)
