@@ -26,7 +26,7 @@ def parse_message(message: dict, senders: list[str]) -> str:
     else:
         sender_name = f"UNKNOWN SENDER {sender_index + 1}"
 
-    return f"{senders[sender_name]} ({date}): {body}\n"
+    return f"{sender_name} ({date}): {body}\n"
 
 if __name__ == "__main__":
     parser = ArgumentParser(
